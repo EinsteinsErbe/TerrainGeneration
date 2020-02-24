@@ -188,5 +188,10 @@ namespace DataLoader
                 Console.WriteLine("Done");
             });
         }
+
+        private void previewToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new DataPreview().ShowDialog();
+        }
     }
 }
