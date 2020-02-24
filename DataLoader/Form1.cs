@@ -16,10 +16,6 @@ namespace DataLoader
 {
     public partial class Form1 : Form
     {
-        const string API_KEY = "pk.eyJ1IjoiZWluc3RlaW5zZXJiZSIsImEiOiJjazZxenZxaTkwMHBjM2xtZXgwYmlwaTZmIn0.GSzUYV7Os83_w8vt2_QpbQ";
-        const string API_BASE_URL = "https://api.mapbox.com/v4/mapbox.";
-        const string DATA_DIR = @"D:\Manuel\Desktop\MASTER_THESIS\DATA\TILES";
-
         public Form1()
         {
             InitializeComponent();
@@ -38,47 +34,44 @@ namespace DataLoader
 
         private void DownloadTile(Point p, int zoom)
         {
-            string path = Path.Combine(DATA_DIR, zoom.ToString(), p.X.ToString(), p.Y.ToString());
-            string pathH = Path.Combine(path, "height_rgb.png");
-            string pathS = Path.Combine(path, "satellite.png");
-            string pathG = Path.Combine(path, "height_g.png");
-            Directory.CreateDirectory(path);
-            string s = "/" + zoom + "/" + p.X + "/" + p.Y + "@2x.pngraw?access_token=" + API_KEY;
+            TileProvider.MAPBOX.DownloadHeight(p, zoom);
+            string path = TileProvider.MAPTILER.DownloadSat(p, zoom);
 
-            if (!File.Exists(pathH) && !File.Exists(Path.Combine(path, "NOTILE")))
+            if (checkBox1.Checked)
             {
-                string url = API_BASE_URL + "terrain-rgb" + s;
-                Console.WriteLine("Download RGB: " + p.X + "/" + p.Y);
-                HttpDownload(url, pathH);
+                TileProvider.MAPBOX.DownloadSat(p, zoom);
+                TileProvider.HERE.DownloadSat(p, zoom);
             }
 
-            if (!File.Exists(pathS) && File.Exists(pathH))
+            //upscale Maptiler Satellite Image
+            string pathScaled = Path.Combine(Path.GetDirectoryName(path), TileProvider.FILE_SAT_MAPTILER_512);
+            if (zoom < 20 && !File.Exists(pathScaled) && checkBox2.Checked)
             {
-                string url = API_BASE_URL + "satellite" + s;
-                Console.WriteLine("Download Sat: " + p.X + "/" + p.Y);
-                HttpDownload(url, pathS);
-            }
+                Console.WriteLine("Create scaled Sat: " + p.X + "/" + p.Y);
 
-            if (!File.Exists(pathG) && File.Exists(pathH))
-            {
-                Console.WriteLine("Create G: " + p.X + "/" + p.Y);
-                Bitmap c = new Bitmap(pathH);
-                //Bitmap d = new Bitmap(c.Width, c.Height, PixelFormat.Format16bppGrayScale);
-                Bitmap d = new Bitmap(c.Width, c.Height, c.PixelFormat);
-                
-                // Loop through the images pixels to reset color.
-                for (int x = 0; x < c.Width; x++)
+                Bitmap d = new Bitmap(512, 512);
+
+                for (int i = 0; i < 2; i++)
                 {
-                    for (int y = 0; y < c.Height; y++)
+                    for (int j = 0; j < 2; j++)
                     {
-                        Color pixelColor = c.GetPixel(x, y);
-                        double height = -10000 + ((pixelColor.R * 256 * 256 + pixelColor.G * 256 + pixelColor.B) * 0.1);
-                        int gray = Math.Max(Math.Min((int)(height/5000.0*255),255),0);
-                        d.SetPixel(x, y, Color.FromArgb(gray, gray, gray));
+                        string file = TileProvider.MAPTILER.DownloadSat(new Point(p.X * 2 + i, p.Y * 2 + j), zoom + 1);
+                        if (File.Exists(file))
+                        {
+                            Bitmap c = new Bitmap(file);
+                            for (int x = 0; x < c.Width; x++)
+                            {
+                                for (int y = 0; y < c.Height; y++)
+                                {
+                                    Color pixelColor = c.GetPixel(x, y);
+                                    d.SetPixel(x + i * 256, y + j * 256, pixelColor);
+                                }
+                            }
+                        }
                     }
                 }
 
-                d.Save(pathG);
+                d.Save(pathScaled);
             }
         }
 
@@ -112,36 +105,6 @@ namespace DataLoader
                 }
             }
             return rawImage;
-        }
-
-        public static void HttpDownload(string uri, string path)
-        {
-            // use the httpclient
-            using (var client = new HttpClient())
-            {
-                // connect to the REST endpoint        
-                HttpResponseMessage response = client.GetAsync(uri).Result;
-
-                // check to see if we have a succesfull respond
-                if (response.IsSuccessStatusCode)
-                {
-                    Stream stream = response.Content.ReadAsStreamAsync().Result;
-                    using (var fileStream = File.Create(path))
-                    {
-                        stream.Seek(0, SeekOrigin.Begin);
-                        stream.CopyTo(fileStream);
-                    }
-                    stream.Close();
-                }
-                else
-                {
-                    Console.WriteLine(response.StatusCode + ": " + response.ReasonPhrase);
-                    if (response.StatusCode.Equals(HttpStatusCode.NotFound))
-                    {
-                        File.Create(Path.Combine(Path.GetDirectoryName(path), "NOTILE"));
-                    }
-                }
-            }
         }
 
         public Point WorldToTile(double lon, double lat, int zoom)
