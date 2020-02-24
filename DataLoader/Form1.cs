@@ -9,6 +9,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -19,17 +20,6 @@ namespace DataLoader
         public Form1()
         {
             InitializeComponent();
-        }
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-            float lat = float.Parse(textBox1.Text);
-            float lon = float.Parse(textBox2.Text);
-            int z = int.Parse(textBox3.Text);
-
-            Point p = WorldToTile(lon, lat, z);
-
-            DownloadTile(p, z);
         }
 
         private void DownloadTile(Point p, int zoom)
@@ -138,6 +128,17 @@ namespace DataLoader
             return p;
         }
 
+        private void button1_Click(object sender, EventArgs e)
+        {
+            float lat = float.Parse(textBox1.Text);
+            float lon = float.Parse(textBox2.Text);
+            int z = int.Parse(textBox3.Text);
+
+            Point p = WorldToTile(lon, lat, z);
+
+            DownloadTile(p, z);
+        }
+
         private void button2_Click(object sender, EventArgs e)
         {
             int x = int.Parse(textBox4.Text);
@@ -145,6 +146,45 @@ namespace DataLoader
             int z = int.Parse(textBox3.Text);
 
             DownloadTile(new Point(x, y), z);
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            float lat = float.Parse(textBox1.Text);
+            float lon = float.Parse(textBox2.Text);
+            int z = int.Parse(textBox3.Text);
+
+            float lat2 = float.Parse(textBox6.Text);
+            float lon2 = float.Parse(textBox7.Text);
+
+            Point p = WorldToTile(lon, lat, z);
+            Point p2 = WorldToTile(lon2, lat2, z);
+
+            if (p.X > p2.X || p.Y > p2.Y)
+            {
+                Console.WriteLine("Enter Coords from top left to bottom right");
+                return;
+            }
+
+            int total = (p2.X - p.X + 1) * (p2.Y - p.Y + 1);
+            Console.WriteLine("Download " + total + " tiles");
+            progressBar1.Value = 0;
+
+            ButtonState bs = new ButtonState(button3, label6, progressBar1);
+            bs.Start(total);
+            Task.Run(() =>
+            {
+                for (int x = p.X; x <= p2.X; x++)
+                {
+                    for (int y = p.Y; y <= p2.Y; y++)
+                    {
+                        DownloadTile(new Point(x, y), z);
+                        Invoke(new Action(() => bs.Update(x+"/"+y)));
+                    }
+                }
+                Invoke(new Action(() => bs.End()));
+                Console.WriteLine("Done");
+            });
         }
     }
 }
