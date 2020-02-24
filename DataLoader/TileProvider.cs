@@ -78,6 +78,14 @@ namespace DataLoader
             return path;
         }
 
+        private void CheckFile(string path, Point p, string type)
+        {
+            if (!File.Exists(path))
+            {
+                Console.WriteLine(type + "-tile " + p.X + "/" + p.Y + " doesn't exist!");
+            }
+        }
+
         public string DownloadSat(Point p, int zoom)
         {
             string path = CreateBaseDir(p, zoom);
@@ -85,9 +93,11 @@ namespace DataLoader
 
             if (!File.Exists(pathS) && !File.Exists(Path.Combine(path, "NOTILE")))
             {
-                Console.WriteLine("Download Sat: " + p.X + "/" + p.Y);
+                //Console.WriteLine("Download Sat: " + p.X + "/" + p.Y);
                 HttpDownload(downloadSatUrl(p, zoom), pathS);
             }
+
+            CheckFile(pathS, p, "sat");
 
             return pathS;
         }
@@ -100,13 +110,15 @@ namespace DataLoader
 
             if (!File.Exists(pathH) && !File.Exists(Path.Combine(path, "NOTILE")))
             {
-                Console.WriteLine("Download RGB: " + p.X + "/" + p.Y);
+                //Console.WriteLine("Download RGB: " + p.X + "/" + p.Y);
                 HttpDownload(downloadHeightUrl(p, zoom), pathH);
             }
 
+            CheckFile(pathH, p, "rgb");
+
             if (!File.Exists(pathG) && File.Exists(pathH) && grayscale)
             {
-                Console.WriteLine("Create GS: " + p.X + "/" + p.Y);
+                //Console.WriteLine("Create GS: " + p.X + "/" + p.Y);
                 Bitmap c = new Bitmap(pathH);
                 //Bitmap d = new Bitmap(c.Width, c.Height, PixelFormat.Format16bppGrayScale);
                 Bitmap d = new Bitmap(c.Width, c.Height, c.PixelFormat);

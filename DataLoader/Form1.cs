@@ -37,7 +37,7 @@ namespace DataLoader
             string pathScaled = Path.Combine(Path.GetDirectoryName(path), TileProvider.FILE_SAT_MAPTILER_512);
             if (zoom < 20 && !File.Exists(pathScaled) && checkBox2.Checked)
             {
-                Console.WriteLine("Create scaled Sat: " + p.X + "/" + p.Y);
+                //Console.WriteLine("Create scaled Sat: " + p.X + "/" + p.Y);
 
                 Bitmap d = new Bitmap(512, 512);
 
@@ -167,6 +167,7 @@ namespace DataLoader
             }
 
             int total = (p2.X - p.X + 1) * (p2.Y - p.Y + 1);
+            label7.Text = total.ToString();
             Console.WriteLine("Download " + total + " tiles");
             progressBar1.Value = 0;
 
@@ -174,14 +175,15 @@ namespace DataLoader
             bs.Start(total);
             Task.Run(() =>
             {
-                for (int x = p.X; x <= p2.X; x++)
+                Parallel.For(p.X, p2.X + 1, x =>
                 {
                     for (int y = p.Y; y <= p2.Y; y++)
                     {
                         DownloadTile(new Point(x, y), z);
-                        Invoke(new Action(() => bs.Update(x+"/"+y)));
+                        Invoke(new Action(() => bs.Update(x + "/" + y)));
                     }
-                }
+                });
+
                 Invoke(new Action(() => bs.End()));
                 Console.WriteLine("Done");
             });
