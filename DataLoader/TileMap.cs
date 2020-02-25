@@ -17,8 +17,6 @@ namespace DataLoader
         int xMap = 4;//8
         int yMap = 2;//5
 
-
-
         public TileMap()
         {
             InitializeComponent();
@@ -32,6 +30,9 @@ namespace DataLoader
 
         private void button1_Click(object sender, EventArgs e)
         {
+            ButtonState bs = new ButtonState(button1, label6, progressBar1);
+
+
             string map = Path.Combine(TileProvider.DATA_DIR, zoom.ToString(), xMap.ToString(), yMap.ToString(), TileProvider.FILE_SAT_MAPTILER_512);
             Bitmap image = new Bitmap(map);
             int z = int.Parse(textBox3.Text);
@@ -44,41 +45,53 @@ namespace DataLoader
             string xpath = Path.Combine(TileProvider.DATA_DIR, textBox3.Text);
             if (Directory.Exists(xpath))
             {
-                foreach (string tx in Directory.GetDirectories(xpath))
+                string[] xs = Directory.GetDirectories(xpath);
+
+                bs.Start(xs.Length);
+                Task.Run(() =>
                 {
-                    int x = int.Parse(Path.GetFileName(tx));
-                    foreach (string ty in Directory.GetDirectories(tx))
+                    foreach (string tx in xs)
                     {
-                        int y = int.Parse(Path.GetFileName(ty));
-                        if (File.Exists(Path.Combine(ty, TileProvider.FILE_HEIGHT_RGB)))
+                        int x = int.Parse(Path.GetFileName(tx));
+                        foreach (string ty in Directory.GetDirectories(tx))
                         {
-                            if (File.Exists(Path.Combine(ty, TileProvider.FILE_SAT_MAPTILER_512)))
+                            int y = int.Parse(Path.GetFileName(ty));
+                            if (File.Exists(Path.Combine(ty, TileProvider.FILE_HEIGHT_RGB)))
                             {
-                                total++;
-                                int pScale = 512 / scale;
-                                int pX = (x - xOffset) * pScale;
-                                int pY = (y - yOffset) * pScale;
-
-                                if (pX < 0 || pY < 0 || pX >= 512 || pY >= 512)
+                                if (File.Exists(Path.Combine(ty, TileProvider.FILE_SAT_MAPTILER_512)))
                                 {
-                                    continue;
-                                }
+                                    total++;
+                                    int pScale = 512 / scale;
+                                    int pX = (x - xOffset) * pScale;
+                                    int pY = (y - yOffset) * pScale;
 
-                                for (int px = 0; px < pScale; px++)
-                                {
-                                    for (int py = 0; py < pScale; py++)
+                                    if (pX < 0 || pY < 0 || pX >= 512 || pY >= 512)
                                     {
-                                        Color c = image.GetPixel(pX + px, pY + py);
-                                        image.SetPixel(pX + px, pY + py, Color.FromArgb(c.R / 2 + 128, c.G / 2, c.B / 2));
+                                        continue;
+                                    }
+
+                                    for (int px = 0; px < pScale; px++)
+                                    {
+                                        for (int py = 0; py < pScale; py++)
+                                        {
+                                            Color c = image.GetPixel(pX + px, pY + py);
+                                            image.SetPixel(pX + px, pY + py, Color.FromArgb(c.R / 2 + 128, c.G / 2, c.B / 2));
+                                        }
                                     }
                                 }
                             }
                         }
+                        Invoke(new Action(() => bs.Update()));
                     }
-                }
+                    Invoke(new Action(() =>
+                    {
+                        bs.End();
+                        pictureBox1.Image = image;
+                        label1.Text = total + " tiles";
+                    }));
+                    Console.WriteLine("Done");
+                });
             }
-            pictureBox1.Image = image;
-            label1.Text = total + " tiles";
         }
     }
 }
