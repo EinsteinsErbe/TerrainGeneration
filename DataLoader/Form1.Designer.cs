@@ -224,6 +224,7 @@
             this.label7.Size = new System.Drawing.Size(32, 13);
             this.label7.TabIndex = 19;
             this.label7.Text = "#tiles";
+            this.label7.Click += new System.EventHandler(this.label7_Click);
             // 
             // menuStrip1
             // 

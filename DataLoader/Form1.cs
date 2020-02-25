@@ -198,5 +198,27 @@ namespace DataLoader
         {
             new TileMap().ShowDialog();
         }
+
+        private void label7_Click(object sender, EventArgs e)
+        {
+            float lat = float.Parse(textBox1.Text);
+            float lon = float.Parse(textBox2.Text);
+            int z = int.Parse(textBox3.Text);
+
+            float lat2 = float.Parse(textBox6.Text);
+            float lon2 = float.Parse(textBox7.Text);
+
+            Point p = WorldToTile(lon, lat, z);
+            Point p2 = WorldToTile(lon2, lat2, z);
+
+            if (p.X > p2.X || p.Y > p2.Y)
+            {
+                Console.WriteLine("Enter Coords from top left to bottom right");
+                return;
+            }
+
+            int total = (p2.X - p.X + 1) * (p2.Y - p.Y + 1);
+            label7.Text = total.ToString();
+        }
     }
 }
