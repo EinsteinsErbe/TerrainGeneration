@@ -193,5 +193,10 @@ namespace DataLoader
         {
             new DataPreview().ShowDialog();
         }
+
+        private void tileMapToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new TileMap().ShowDialog();
+        }
     }
 }

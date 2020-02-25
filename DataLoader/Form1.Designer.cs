@@ -51,6 +51,7 @@
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.dataToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.previewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.tileMapToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -237,7 +238,8 @@
             // dataToolStripMenuItem
             // 
             this.dataToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.previewToolStripMenuItem});
+            this.previewToolStripMenuItem,
+            this.tileMapToolStripMenuItem});
             this.dataToolStripMenuItem.Name = "dataToolStripMenuItem";
             this.dataToolStripMenuItem.Size = new System.Drawing.Size(43, 20);
             this.dataToolStripMenuItem.Text = "Data";
@@ -248,6 +250,13 @@
             this.previewToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.previewToolStripMenuItem.Text = "Preview...";
             this.previewToolStripMenuItem.Click += new System.EventHandler(this.previewToolStripMenuItem_Click);
+            // 
+            // tileMapToolStripMenuItem
+            // 
+            this.tileMapToolStripMenuItem.Name = "tileMapToolStripMenuItem";
+            this.tileMapToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.tileMapToolStripMenuItem.Text = "TileMap...";
+            this.tileMapToolStripMenuItem.Click += new System.EventHandler(this.tileMapToolStripMenuItem_Click);
             // 
             // Form1
             // 
@@ -311,6 +320,7 @@
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem dataToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem previewToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem tileMapToolStripMenuItem;
     }
 }
 
