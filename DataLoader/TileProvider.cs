@@ -14,11 +14,14 @@ namespace DataLoader
     {
         public const string DATA_DIR = @"D:\Manuel\Desktop\MASTER_THESIS\DATA\TILES";
         public const string FILE_HEIGHT_RGB = "height_rgb.png";
+        public const string FILE_HEIGHT_RGB_1024 = "height_rgb_1024.png";
         public const string FILE_HEIGHT_GS = "height_gs.png";
+        public const string FILE_HEIGHT_GS_1024 = "height_gs_1024.png";
         public const string FILE_SAT_MAPBOX = "sat_1.png";
         public const string FILE_SAT_HERE = "sat_2.png";
         public const string FILE_SAT_MAPTILER_256 = "sat_3_256.jpg";
         public const string FILE_SAT_MAPTILER_512 = "sat_3_512.jpg";
+        public const string FILE_SAT_MAPTILER_1024 = "sat_3_1024.jpg";
 
         private const string API_1_KEY = "pk.eyJ1IjoiZWluc3RlaW5zZXJiZSIsImEiOiJjazZxenZxaTkwMHBjM2xtZXgwYmlwaTZmIn0.GSzUYV7Os83_w8vt2_QpbQ";
         private const string API_1_BASE_URL = "https://api.mapbox.com/v4/mapbox.";
@@ -71,7 +74,7 @@ namespace DataLoader
             this.downloadSatUrl = downloadSatUrl;
         }
 
-        private string CreateBaseDir(Point p, int zoom)
+        public static string CreateBaseDir(Point p, int zoom)
         {
             string path = Path.Combine(DATA_DIR, zoom.ToString(), p.X.ToString(), p.Y.ToString());
             Directory.CreateDirectory(path);

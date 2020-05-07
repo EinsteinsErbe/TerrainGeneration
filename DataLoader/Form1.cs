@@ -220,5 +220,10 @@ namespace DataLoader
             int total = (p2.X - p.X + 1) * (p2.Y - p.Y + 1);
             label7.Text = total.ToString();
         }
+
+        private void zoomToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new TileZoom().ShowDialog();
+        }
     }
 }
